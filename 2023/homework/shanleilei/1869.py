@@ -1,5 +1,11 @@
 class Solution:
+    """ """
     def checkZeroOnes(self, s: str) -> bool:
+        """
+
+        :param s: str: 
+
+        """
 
         mo = 0
         mz = 0

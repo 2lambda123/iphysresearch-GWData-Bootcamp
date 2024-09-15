@@ -6,6 +6,11 @@ import re
 
 
 def extract_choices(markdown_content):
+    """
+
+    :param markdown_content: 
+
+    """
     pattern = re.compile(r"^## (\d+\. [A-Z])", re.MULTILINE)
     matches = pattern.findall(markdown_content)
     # here matches is a list
@@ -23,6 +28,12 @@ def extract_choices(markdown_content):
 
 
 def extract_choices_from_file(inputfile_path, outputfile_path):
+    """
+
+    :param inputfile_path: 
+    :param outputfile_path: 
+
+    """
     with open(inputfile_path, "r", encoding="utf-8") as file:
         markdown_content = file.read()
 

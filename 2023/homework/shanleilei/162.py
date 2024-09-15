@@ -1,5 +1,11 @@
 class Solution:
+    """ """
     def findPeakElement(self, nums: List[int]) -> int:
+        """
+
+        :param nums: List[int]: 
+
+        """
 
         # 设置左右指针
         left = 0
