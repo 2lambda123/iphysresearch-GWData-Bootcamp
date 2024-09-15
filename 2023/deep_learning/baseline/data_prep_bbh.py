@@ -1,20 +1,19 @@
 from __future__ import division
 
-import lal
-import lalsimulation
-from lal.antenna import AntennaResponse
-from lal import MSUN_SI, C_SI, G_SI
-
+import argparse
 import os
 import sys
-import argparse
 import time
-import numpy as np
-from six.moves import cPickle
-from scipy.signal import filtfilt, butter
-from scipy.optimize import brentq
-from scipy import integrate, interpolate
 
+import lal
+import lalsimulation
+import numpy as np
+from lal import C_SI, G_SI, MSUN_SI
+from lal.antenna import AntennaResponse
+from scipy import integrate, interpolate
+from scipy.optimize import brentq
+from scipy.signal import butter, filtfilt
+from six.moves import cPickle
 
 if sys.version_info >= (3, 0):
     xrange = range
