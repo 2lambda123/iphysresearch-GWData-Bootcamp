@@ -25,7 +25,7 @@ class DatasetGenerator(Dataset):
     def __init__(self, fs=8192, T=1, snr=20,
                  detectors=['H1', 'L1'],
                  nsample_perepoch=100,
-                 Nnoise=25, mdist='metric',beta=[0.75,0.95],
+                 Nnoise=25, mdist='metric', beta=[0.75, 0.95],
                  verbose=True):
         # 初始化函数，设置各种参数
         if verbose:
@@ -38,10 +38,11 @@ class DatasetGenerator(Dataset):
 
         self.detectors = detectors
         self.snr = snr
-        
-        self.generate(nsample_perepoch, Nnoise, mdist, beta)  # pre-generate sampels
 
-    def generate(self, Nblock, Nnoise=25, mdist='metric',beta=[0.75,0.95]):
+        self.generate(nsample_perepoch, Nnoise, mdist,
+                      beta)  # pre-generate sampels
+
+    def generate(self, Nblock, Nnoise=25, mdist='metric', beta=[0.75, 0.95]):
         # 生成数据的函数
         # Nnoise: # the number of noise realisations per signal
         # Nblock: # the number of training samples per output file
@@ -49,7 +50,8 @@ class DatasetGenerator(Dataset):
 
         ts, par = sim_data(self.fs, self.T, self.snr, self.detectors, Nnoise, size=Nblock, mdist=mdist,
                            beta=beta, verbose=False)
-        self.strains = np.expand_dims(ts[0], 1)   # (nsample, 1, len(det), fs*T)
+        # (nsample, 1, len(det), fs*T)
+        self.strains = np.expand_dims(ts[0], 1)
         self.labels = ts[1]
 
     def __len__(self):
@@ -80,16 +82,20 @@ class MyNet(nn.Module):
         filter_stride = [(1, 1)] * 8
         dilation = [(1, 1)] * 8
         pooling = [1, 0, 0, 0, 1, 0, 0, 1]
-        pool_size = [[1, 8]] + [(1, 1)] * 3 + [[1, 6]] + [(1, 1)] * 2 + [[1, 4]]
-        pool_stride = [[1, 8]] + [(1, 1)] * 3 + [[1, 6]] + [(1, 1)] * 2 + [[1, 4]]
+        pool_size = [[1, 8]] + [(1, 1)] * 3 + [[1, 6]] + \
+            [(1, 1)] * 2 + [[1, 4]]
+        pool_stride = [[1, 8]] + [(1, 1)] * 3 + \
+            [[1, 6]] + [(1, 1)] * 2 + [[1, 4]]
 
         self.layers = nn.ModuleList()
 
         for i in range(8):
             # 添加卷积层
             self.layers.append(nn.Conv2d(
-                in_channels=1 if i == 0 else Nfilters[i-1],  # Number of channels in the input image
-                out_channels=Nfilters[i],  # Number of channels produced by the convolution
+                # Number of channels in the input image
+                in_channels=1 if i == 0 else Nfilters[i-1],
+                # Number of channels produced by the convolution
+                out_channels=Nfilters[i],
                 kernel_size=filter_size[i],  # Size of the convolving kernel
                 stride=filter_stride[i],  # Stride of the convolution
                 padding=0,  # Zero-padding added to both sides of the input
@@ -128,7 +134,7 @@ class MyNet(nn.Module):
             x = layer(x)
         return x
 
-    
+
 # 在模型保存和加载函数中，我们保存了模型的参数、优化器的状态、学习率调度器的状态和训练的epoch。
 # 在加载模型时，我们加载了模型的参数，并返回了模型、训练的epoch和训练损失历史。
 
@@ -146,7 +152,7 @@ def load_model(checkpoint_dir=None):
             checkpoint = torch.load(p / files[0])
             net.load_state_dict(checkpoint['model_state_dict'])
         print('Load network from', p / files[0])
-        
+
         epoch = checkpoint['epoch']
         train_loss_history = np.load(p / 'train_loss_history_cnn.npy').tolist()
         return net, epoch, train_loss_history
@@ -202,12 +208,12 @@ def accuracy(y_hat, y):
     """Compute the number of correct predictions."""
     # 计算预测正确的数量
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
-        y_hat = argmax(y_hat, dim=1)        
+        y_hat = argmax(y_hat, dim=1)
     cmp = astype(y_hat, y.dtype) == y
     return float(reduce_sum(astype(cmp, y.dtype)))
 
 
-def evaluate_accuracy_gpu(net, data_iter, loss_func, device=None): #@save
+def evaluate_accuracy_gpu(net, data_iter, loss_func, device=None):  # @save
     """使用GPU计算模型在数据集上的精度"""
     if isinstance(net, nn.Module):
         net.eval()  # 设置为评估模式
@@ -239,14 +245,15 @@ def train(net, lr, nsample_perepoch, epoch, total_epochs,
     loss_func = nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)  # 定义优化器
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-                        optimizer,
-                        T_max=total_epochs,  # 定义学习率调度器
-                    )
+        optimizer,
+        T_max=total_epochs,  # 定义学习率调度器
+    )
 
     torch.cuda.empty_cache()  # 清空CUDA缓存
     if notebook:
         animator = Animator(xlabel='epoch', xlim=[1, total_epochs],
-                                legend=['train loss', 'test loss', 'train acc', 'test acc'])  # 定义动画显示器
+                            # 定义动画显示器
+                            legend=['train loss', 'test loss', 'train acc', 'test acc'])
     timer, num_batches = Timer(), len(dataset_train)  # 定义计时器和批次数量
 
     # 开始训练循环
@@ -256,7 +263,8 @@ def train(net, lr, nsample_perepoch, epoch, total_epochs,
 
         # 如果不是notebook模式，打印当前学习率
         if not notebook:
-            print(f"Learning rate: {optimizer.state_dict()['param_groups'][0]['lr']}")
+            print(
+                f"Learning rate: {optimizer.state_dict()['param_groups'][0]['lr']}")
 
         # 初始化度量累加器，用于计算训练损失总和，训练准确率总和，样本数
         metric = Accumulator(3)
@@ -303,10 +311,12 @@ def train(net, lr, nsample_perepoch, epoch, total_epochs,
         scheduler.step()
 
         # 在测试集上评估模型
-        test_acc, test_l = evaluate_accuracy_gpu(net, test_iter, loss_func, device)
+        test_acc, test_l = evaluate_accuracy_gpu(
+            net, test_iter, loss_func, device)
 
         # 保存训练损失历史
-        train_loss_history.append([epoch+1, train_l, test_l, train_acc, test_acc])
+        train_loss_history.append(
+            [epoch+1, train_l, test_l, train_acc, test_acc])
 
         # 如果是notebook模式，更新动画显示器；否则，打印训练损失、测试损失、训练准确率和测试准确率
         if notebook:
@@ -317,8 +327,8 @@ def train(net, lr, nsample_perepoch, epoch, total_epochs,
                   f'Train Acc: {train_acc} Test Acc: {test_acc}')
 
         # 如果当前测试损失小于或等于历史最低测试损失，保存模型
-        if (test_l <= min(np.asarray(train_loss_history)[:,1])):
-            save_model(epoch, net, optimizer, scheduler, 
+        if (test_l <= min(np.asarray(train_loss_history)[:, 1])):
+            save_model(epoch, net, optimizer, scheduler,
                        checkpoint_dir=checkpoint_dir,
                        train_loss_history=train_loss_history,
                        filename=f'model_e{epoch}.pt',)
@@ -334,21 +344,25 @@ def train(net, lr, nsample_perepoch, epoch, total_epochs,
 if __name__ == "__main__":
     # 主函数，程序的入口
     nsample_perepoch = 100  # 每个epoch的样本数
-    dataset_train = DatasetGenerator(snr=20, nsample_perepoch=nsample_perepoch)  # 训练数据集
-    dataset_test = DatasetGenerator(snr=20, nsample_perepoch=nsample_perepoch)  # 测试数据集
+    dataset_train = DatasetGenerator(
+        snr=20, nsample_perepoch=nsample_perepoch)  # 训练数据集
+    dataset_test = DatasetGenerator(
+        snr=20, nsample_perepoch=nsample_perepoch)  # 测试数据集
 
     # 创建一个DataLoader
-    data_loader = DataLoader(dataset_train, batch_size=32, shuffle=True,)  # 训练数据加载器
-    test_iter = DataLoader(dataset_test, batch_size=32, shuffle=True,)  # 测试数据加载器
+    data_loader = DataLoader(
+        dataset_train, batch_size=32, shuffle=True,)  # 训练数据加载器
+    test_iter = DataLoader(dataset_test, batch_size=32,
+                           shuffle=True,)  # 测试数据加载器
 
     device = torch.device('cuda')  # 使用CUDA设备
 
     # 模型和损失历史的输出路径
     checkpoint_dir = './checkpoints_cnn1/'
 
-    # 创建模型    
+    # 创建模型
     net, epoch, train_loss_history = load_model(checkpoint_dir)  # 加载模型
-    net.to(device);  # 将模型转移到设备上
+    net.to(device)  # 将模型转移到设备上
 
     # 优化器参数
     lr = 0.003  # 学习率
@@ -356,4 +370,5 @@ if __name__ == "__main__":
     total_epochs += epoch  # 加上已经训练过的轮数
     output_freq = 1  # 输出频率
 
-    train(net, lr, nsample_perepoch, epoch, total_epochs, data_loader, test_iter, notebook=False)  # 训练模型```
+    train(net, lr, nsample_perepoch, epoch, total_epochs,
+          data_loader, test_iter, notebook=False)  # 训练模型```
