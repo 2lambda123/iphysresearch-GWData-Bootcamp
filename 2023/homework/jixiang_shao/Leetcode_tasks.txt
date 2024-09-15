@@ -4,7 +4,7 @@
 class Solution(object): # 初始化类
     def countSegments(self, s): # 定义函数
         return (len(s.split())) # 利用python 的split() 函数以空格来分隔字符串，并输出分分隔后的字符串单词个数，split()函数，不加参数就是默认用空格来分隔
-        
+
 
 1869. Longer Contiguous Segments of Ones than Zeros
 class Solution(object):
@@ -15,12 +15,12 @@ class Solution(object):
         """
         s0 = s.split('1')    #字符串以'1'分割，那么剩下的字符串就是包含'0'的
         s1 = s.split('0')    #字符串以'0'分割，那么剩下的字符串就是包含'1'的
-        
+
         num_0  = [ len(x) for x in s0 ]   #输出s0 这个列表中每一元素的长度
         num_1  = [ len(x) for x in s1 ]   #输出s1 这个列表中每一元素的长度
-        
+
         return (max(num_1) > max(num_0))  #如果‘1’连续长度的最大值大于‘0’的，输出为True，否则为False
-        
+
 
 1784. Check if Binary String Has at Most One Segment of Ones
 class Solution(object):
@@ -38,8 +38,8 @@ class Solution(object):
                 return True            # 我觉得这个题目leetcode 评判有问题，它给出的example 如果s=‘1’,输出竟然为True，这明显是错的。
             else:
                 return False
-        
-        
+
+
 852. Peak Index in a Mountain Array
 class Solution(object):
     def peakIndexInMountainArray(self, arr):
@@ -51,7 +51,7 @@ class Solution(object):
             print ('The array is too short, please re-enter a longer array')
         else:
             return (arr.index(max(arr)))  # 返回数组最大值的index
-            
+
 
 162. Find Peak Element
 
@@ -62,9 +62,6 @@ class Solution:
             mid = int ((left + right)/2)   # 设置中间值，
             if nums[mid] > nums[mid + 1]:  # 如果中间值大于它右边的值，那么这个num[mid] 就是peak的候选体，现在我们就需要判断它左边的值是不是小于它
                 right = mid                # 把mid赋值给右边界，再进行下一轮的比较。
-            else:                            
+            else:
                 left = mid + 1             #比较到最后，会终于找到一个元素，nums[index-1]<nums[index],那么peak就是nums[index]
         return left
-
-
-

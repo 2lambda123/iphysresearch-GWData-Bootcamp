@@ -1,4 +1,4 @@
-434 
+434
 class Solution:
     def countSegments(self, s: str) -> int:
         #初始化计数器。
@@ -57,7 +57,7 @@ class Solution:
             i+=1
             if s[i]=='0' and s[i+1]!='0':
                 return False
-        return True           
+        return True
 
 852
 class Solution:
@@ -104,6 +104,3 @@ class Solution:
                 rightb = mid
                 if nums[mid] > nums[mid-1]:
                     return mid
-
-
-            

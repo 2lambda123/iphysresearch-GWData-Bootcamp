@@ -3,7 +3,7 @@ class Solution:
     def findPeakElement(self, nums: List[int]) -> int:
         """
 
-        :param nums: List[int]: 
+        :param nums: List[int]:
 
         """
 

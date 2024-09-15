@@ -1,8 +1,8 @@
 C
 B
-C 
-C 
-C 
+C
+C
+C
 A
 A
 B
@@ -49,7 +49,7 @@ A
 B
 A
 A
-A 
+A
 B
 D
 D
