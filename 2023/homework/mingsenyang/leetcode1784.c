@@ -14,7 +14,7 @@ bool checkOnesSegment(char* s) {
             while (i<len && s[i]=='1') {
                 i++;
             }
-        }else {
+        } else {
             i++;
         }
     }

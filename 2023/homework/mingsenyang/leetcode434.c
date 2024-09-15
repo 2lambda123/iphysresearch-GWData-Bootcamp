@@ -1,4 +1,4 @@
-int countSegments(char * s){
+int countSegments(char * s) {
     int len,cnt;
     len = strlen(s);
     cnt = 0;
@@ -8,7 +8,7 @@ int countSegments(char * s){
         if (s[i] == ' ') {
             i++;
             continue;
-        }else {
+        } else {
             //第一个非空格字符计数+1
             cnt++;
             //跳过后续的非空格字符

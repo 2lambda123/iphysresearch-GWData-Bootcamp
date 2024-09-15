@@ -28,7 +28,7 @@ bool checkZeroOnes(char* s) {
             }
             pre = s[i];
             cnt = 1;
-        }else {
+        } else {
             cnt++;
         }
     }
