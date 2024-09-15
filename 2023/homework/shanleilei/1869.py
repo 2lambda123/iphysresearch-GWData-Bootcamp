@@ -10,9 +10,9 @@ class Solution:
                 # 初始化局部计数器
                 o = 1
                 # 遍历剩余的元素
-                for a in range(len(s)-i-1):
+                for a in range(len(s) - i - 1):
                     # 当再次遇到1，增加计数器
-                    if s[i+a+1] == "1":
+                    if s[i + a + 1] == "1":
                         o += 1
 
                     # 否则跳出循环
@@ -26,9 +26,9 @@ class Solution:
                 # 初始化局部计数器
                 z = 1
                 # 遍历剩余的元素
-                for d in range(len(s)-i-1):
+                for d in range(len(s) - i - 1):
                     # 当再次遇到0，增加计数器
-                    if s[i+d+1] == "0":
+                    if s[i + d + 1] == "0":
                         z += 1
 
                     # 否则跳出循环
