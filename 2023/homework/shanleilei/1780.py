@@ -1,5 +1,11 @@
 class Solution:
+    """ """
     def checkOnesSegment(self, s: str) -> bool:
+        """
+
+        :param s: str: 
+
+        """
         conut = sum(
             1 for i in range(len(s)) if s[i] == "1" and (i == 0 or s[i - 1] == "0")
         )
