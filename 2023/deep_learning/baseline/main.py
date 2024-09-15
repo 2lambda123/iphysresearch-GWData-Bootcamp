@@ -23,6 +23,7 @@ from utils import *
 
 class DatasetGenerator(Dataset):
     """ """
+
     def __init__(
         self,
         fs=8192,
@@ -47,7 +48,8 @@ class DatasetGenerator(Dataset):
         self.detectors = detectors
         self.snr = snr
 
-        self.generate(nsample_perepoch, Nnoise, mdist, beta)  # pre-generate sampels
+        self.generate(nsample_perepoch, Nnoise, mdist,
+                      beta)  # pre-generate sampels
 
     def generate(self, Nblock, Nnoise=25, mdist="metric", beta=[0.75, 0.95]):
         """
@@ -100,6 +102,7 @@ class DatasetGenerator(Dataset):
 
 class MyNet(nn.Module):
     """ """
+
     def __init__(self):
         # 初始化函数，设置网络的各种参数
         super(MyNet, self).__init__()
@@ -109,8 +112,10 @@ class MyNet(nn.Module):
         filter_stride = [(1, 1)] * 8
         dilation = [(1, 1)] * 8
         pooling = [1, 0, 0, 0, 1, 0, 0, 1]
-        pool_size = [[1, 8]] + [(1, 1)] * 3 + [[1, 6]] + [(1, 1)] * 2 + [[1, 4]]
-        pool_stride = [[1, 8]] + [(1, 1)] * 3 + [[1, 6]] + [(1, 1)] * 2 + [[1, 4]]
+        pool_size = [[1, 8]] + [(1, 1)] * 3 + [[1, 6]
+                                               ] + [(1, 1)] * 2 + [[1, 4]]
+        pool_stride = [[1, 8]] + [(1, 1)] * 3 + [[1, 6]
+                                                 ] + [(1, 1)] * 2 + [[1, 4]]
 
         self.layers = nn.ModuleList()
 
@@ -122,15 +127,17 @@ class MyNet(nn.Module):
                     in_channels=1 if i == 0 else Nfilters[i - 1],
                     # Number of channels produced by the convolution
                     out_channels=Nfilters[i],
-                    kernel_size=filter_size[i],  # Size of the convolving kernel
+                    kernel_size=filter_size[
+                        i],  # Size of the convolving kernel
                     stride=filter_stride[i],  # Stride of the convolution
                     padding=0,  # Zero-padding added to both sides of the input
                     dilation=dilation[i],  # Spacing between kernel elements
-                    groups=1,  # Number of blocked connections from input channels to output channels
+                    groups=
+                    1,  # Number of blocked connections from input channels to output channels
                     bias=True,  # If True, adds a learnable bias to the output
-                    padding_mode="zeros",  # Specifies the type of padding, 'zeros' pads with zero
-                )
-            )
+                    padding_mode=
+                    "zeros",  # Specifies the type of padding, 'zeros' pads with zero
+                ))
             # 添加ELU激活函数，alpha参数为0.01
             self.layers.append(nn.ELU(0.01))
             # 添加批量归一化层，特征数量为Nfilters[i]
@@ -143,8 +150,7 @@ class MyNet(nn.Module):
                         kernel_size=pool_size[i],
                         stride=pool_stride[i],
                         padding=0,
-                    )
-                )
+                    ))
 
         # 添加Flatten层，将输入展平
         self.layers.append(nn.Flatten())
@@ -200,9 +206,8 @@ def load_model(checkpoint_dir=None):
         return net, 0, []
 
 
-def save_model(
-    epoch, model, optimizer, scheduler, checkpoint_dir, train_loss_history, filename
-):
+def save_model(epoch, model, optimizer, scheduler, checkpoint_dir,
+               train_loss_history, filename):
     """Save a model and optimizer to file.
 
     :param epoch:
@@ -354,7 +359,9 @@ def train(
 
         # 如果不是notebook模式，打印当前学习率
         if not notebook:
-            print(f"Learning rate: {optimizer.state_dict()['param_groups'][0]['lr']}")
+            print(
+                f"Learning rate: {optimizer.state_dict()['param_groups'][0]['lr']}"
+            )
 
         # 初始化度量累加器，用于计算训练损失总和，训练准确率总和，样本数
         metric = Accumulator(3)
@@ -393,11 +400,8 @@ def train(
             train_l = metric[0] / metric[2]
             train_acc = metric[1] / metric[2]
             # 如果是notebook模式，并且当前批次是整个训练集的1/5或最后一个批次，更新动画显示器
-            if (
-                notebook
-                and (batch_idx + 1) % (num_batches // 5) == 0
-                or batch_idx == num_batches - 1
-            ):
+            if (notebook and (batch_idx + 1) % (num_batches // 5) == 0
+                    or batch_idx == num_batches - 1):
                 animator.add(
                     epoch + (batch_idx + 1) / num_batches,
                     (train_l, None, train_acc, None),
@@ -407,20 +411,20 @@ def train(
         scheduler.step()
 
         # 在测试集上评估模型
-        test_acc, test_l = evaluate_accuracy_gpu(net, test_iter, loss_func, device)
+        test_acc, test_l = evaluate_accuracy_gpu(net, test_iter, loss_func,
+                                                 device)
 
         # 保存训练损失历史
-        train_loss_history.append([epoch + 1, train_l, test_l, train_acc, test_acc])
+        train_loss_history.append(
+            [epoch + 1, train_l, test_l, train_acc, test_acc])
 
         # 如果是notebook模式，更新动画显示器；否则，打印训练损失、测试损失、训练准确率和测试准确率
         if notebook:
             animator.add(epoch + 1, (train_l, test_l, train_acc, test_acc))
         else:
-            print(
-                f"Epoch: {epoch+1} \t"
-                f"Train Loss: {train_l:.4f} Test Loss: {test_l:.4f} \t"
-                f"Train Acc: {train_acc} Test Acc: {test_acc}"
-            )
+            print(f"Epoch: {epoch+1} \t"
+                  f"Train Loss: {train_l:.4f} Test Loss: {test_l:.4f} \t"
+                  f"Train Acc: {train_acc} Test Acc: {test_acc}")
 
         # 如果当前测试损失小于或等于历史最低测试损失，保存模型
         if test_l <= min(np.asarray(train_loss_history)[:, 1]):
@@ -435,23 +439,20 @@ def train(
             )
 
     # 打印最终的训练损失、训练准确率和测试准确率
-    print(f"loss {train_l:.4f}, train acc {train_acc:.3f}, " f"test acc {test_acc:.3f}")
+    print(f"loss {train_l:.4f}, train acc {train_acc:.3f}, "
+          f"test acc {test_acc:.3f}")
     # 打印每秒处理的样本数和使用的设备
-    print(
-        f"{metric[2] * total_epochs / timer.sum():.1f} examples/sec "
-        f"on {str(device)}"
-    )
+    print(f"{metric[2] * total_epochs / timer.sum():.1f} examples/sec "
+          f"on {str(device)}")
 
 
 if __name__ == "__main__":
     # 主函数，程序的入口
     nsample_perepoch = 100  # 每个epoch的样本数
     dataset_train = DatasetGenerator(
-        snr=20, nsample_perepoch=nsample_perepoch
-    )  # 训练数据集
-    dataset_test = DatasetGenerator(
-        snr=20, nsample_perepoch=nsample_perepoch
-    )  # 测试数据集
+        snr=20, nsample_perepoch=nsample_perepoch)  # 训练数据集
+    dataset_test = DatasetGenerator(snr=20,
+                                    nsample_perepoch=nsample_perepoch)  # 测试数据集
 
     # 创建一个DataLoader
     data_loader = DataLoader(

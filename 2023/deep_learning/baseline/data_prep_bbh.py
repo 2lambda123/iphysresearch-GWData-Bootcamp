@@ -27,9 +27,9 @@ safe = 2  # define the safe multiplication scale for the desired time length
 
 class bbhparams:
     """ """
-    def __init__(
-        self, mc, M, eta, m1, m2, ra, dec, iota, phi, psi, idx, fmin, snr, SNR
-    ):
+
+    def __init__(self, mc, M, eta, m1, m2, ra, dec, iota, phi, psi, idx, fmin,
+                 snr, SNR):
         self.mc = mc
         self.M = M
         self.eta = eta
@@ -55,13 +55,14 @@ def tukey(M, alpha=0.5):
     """
     n = np.arange(0, M)
     width = int(np.floor(alpha * (M - 1) / 2.0))
-    n1 = n[: width + 1]
-    n2 = n[width + 1 : M - width - 1]
-    n3 = n[M - width - 1 :]
+    n1 = n[:width + 1]
+    n2 = n[width + 1:M - width - 1]
+    n3 = n[M - width - 1:]
 
     w1 = 0.5 * (1 + np.cos(np.pi * (-1 + 2.0 * n1 / alpha / (M - 1))))
     w2 = np.ones(n2.shape)
-    w3 = 0.5 * (1 + np.cos(np.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha / (M - 1))))
+    w3 = 0.5 * (1 + np.cos(np.pi * (-2.0 / alpha + 1 + 2.0 * n3 / alpha /
+                                    (M - 1))))
     w = np.concatenate((w1, w2, w3))
 
     return np.array(w[:M])
@@ -71,13 +72,16 @@ def parser():
     """Parses command line arguments"""
     parser = argparse.ArgumentParser(
         prog="data_prep.py",
-        description="generates GW data for application of deep learning networks.",
+        description=
+        "generates GW data for application of deep learning networks.",
     )
 
     # arguments for reading in a data file
-    parser.add_argument(
-        "-N", "--Nsamp", type=int, default=7000, help="the number of samples"
-    )
+    parser.add_argument("-N",
+                        "--Nsamp",
+                        type=int,
+                        default=7000,
+                        help="the number of samples")
     # parser.add_argument('-Nv', '--Nvalid', type=int, default=1500, help='the number of validation samples')
     # parser.add_argument('-Nt', '--Ntest', type=int, default=1500, help='the number of testing samples')
     parser.add_argument(
@@ -94,15 +98,21 @@ def parser():
         default=10000,
         help="the number of training samples per output file",
     )
-    parser.add_argument(
-        "-f", "--fsample", type=int, default=8192, help="the sampling frequency (Hz)"
-    )
-    parser.add_argument(
-        "-T", "--Tobs", type=int, default=1, help="the observation duration (sec)"
-    )
-    parser.add_argument(
-        "-s", "--snr", type=float, default=None, help="the signal integrated SNR"
-    )
+    parser.add_argument("-f",
+                        "--fsample",
+                        type=int,
+                        default=8192,
+                        help="the sampling frequency (Hz)")
+    parser.add_argument("-T",
+                        "--Tobs",
+                        type=int,
+                        default=1,
+                        help="the observation duration (sec)")
+    parser.add_argument("-s",
+                        "--snr",
+                        type=float,
+                        default=None,
+                        help="the signal integrated SNR")
     parser.add_argument(
         "-I",
         "--detectors",
@@ -125,7 +135,11 @@ def parser():
         default="astro",
         help="mass distribution for training (astro,gh,metric)",
     )
-    parser.add_argument("-z", "--seed", type=int, default=1, help="the random seed")
+    parser.add_argument("-z",
+                        "--seed",
+                        type=int,
+                        default=1,
+                        help="the random seed")
 
     return parser.parse_args()
 
@@ -141,9 +155,8 @@ def convert_beta(beta, fs, T_obs):
     """
     # pick new random max amplitude sample location - within beta fractions
     # and slide waveform to that location
-    newbeta = (
-        np.array([(beta[0] + 0.5 * safe - 0.5), (beta[1] + 0.5 * safe - 0.5)]) / safe
-    )
+    newbeta = (np.array([(beta[0] + 0.5 * safe - 0.5),
+                         (beta[1] + 0.5 * safe - 0.5)]) / safe)
     low_idx = int(T_obs * fs * newbeta[0])
     high_idx = int(T_obs * fs * newbeta[1])
 
@@ -186,9 +199,8 @@ def gen_psd(fs, T_obs, op="AdvDesign", det="H1"):
     N = T_obs * fs  # the total number of time samples
     dt = 1 / fs  # the sampling time (sec)
     df = 1 / T_obs  # the frequency resolution
-    psd = lal.CreateREAL8FrequencySeries(
-        None, lal.LIGOTimeGPS(0), 0.0, df, lal.HertzUnit, N // 2 + 1
-    )
+    psd = lal.CreateREAL8FrequencySeries(None, lal.LIGOTimeGPS(0), 0.0, df,
+                                         lal.HertzUnit, N // 2 + 1)
 
     if det in ["H1", "L1"]:
         if op == "AdvDesign":
@@ -237,7 +249,7 @@ def get_snr(data, T_obs, fs, psd, fmin):
     invpsd[idx] = 1.0 / psd[idx]
 
     xf = np.fft.rfft(data * win) * dt
-    SNRsq = 4.0 * np.sum((np.abs(xf[fidx:]) ** 2) * invpsd[fidx:]) * df
+    SNRsq = 4.0 * np.sum((np.abs(xf[fidx:])**2) * invpsd[fidx:]) * df
     return np.sqrt(SNRsq)
 
 
@@ -292,16 +304,12 @@ def gen_masses(m_min=5.0, M_max=100.0, mdist="astro", verbose=True):
         log_m_max = np.log(new_M_max - new_m_min)
         while not flag:
             m12 = np.exp(
-                np.log(new_m_min)
-                + np.random.uniform(0, 1, 2) * (log_m_max - np.log(new_m_min))
-            )
-            flag = bool(
-                (np.sum(m12) < new_M_max)
-                and (np.all(m12 > new_m_min))
-                and (m12[0] >= m12[1])
-            )
-        eta = m12[0] * m12[1] / (m12[0] + m12[1]) ** 2
-        mc = np.sum(m12) * eta ** (3.0 / 5.0)
+                np.log(new_m_min) + np.random.uniform(0, 1, 2) *
+                (log_m_max - np.log(new_m_min)))
+            flag = bool((np.sum(m12) < new_M_max) and (np.all(m12 > new_m_min))
+                        and (m12[0] >= m12[1]))
+        eta = m12[0] * m12[1] / (m12[0] + m12[1])**2
+        mc = np.sum(m12) * eta**(3.0 / 5.0)
         return m12, mc, eta
     elif mdist == "gh":
         if verbose:
@@ -311,11 +319,10 @@ def gen_masses(m_min=5.0, M_max=100.0, mdist="astro", verbose=True):
             q = np.random.uniform(1.0, 10.0, 1)
             m12[1] = np.random.uniform(5.0, 75.0, 1)
             m12[0] = m12[1] * q
-            flag = bool(
-                (np.all(m12 < 75.0)) and (np.all(m12 > 5.0)) and (m12[0] >= m12[1])
-            )
-        eta = m12[0] * m12[1] / (m12[0] + m12[1]) ** 2
-        mc = np.sum(m12) * eta ** (3.0 / 5.0)
+            flag = bool((np.all(m12 < 75.0)) and (np.all(m12 > 5.0))
+                        and (m12[0] >= m12[1]))
+        eta = m12[0] * m12[1] / (m12[0] + m12[1])**2
+        mc = np.sum(m12) * eta**(3.0 / 5.0)
         return m12, mc, eta
     elif mdist == "metric":
         if verbose:
@@ -325,24 +332,17 @@ def gen_masses(m_min=5.0, M_max=100.0, mdist="astro", verbose=True):
         new_M_min = 2.0 * new_m_min
         eta_min = m_min * (new_M_max - new_m_min) / new_M_max**2
         while not flag:
-            M = (
-                new_M_min ** (-7.0 / 3.0)
-                - np.random.uniform(0, 1, 1)
-                * (new_M_min ** (-7.0 / 3.0) - new_M_max ** (-7.0 / 3.0))
-            ) ** (-3.0 / 7.0)
-            eta = (
-                eta_min ** (-2.0)
-                - np.random.uniform(0, 1, 1) * (eta_min ** (-2.0) - 16.0)
-            ) ** (-1.0 / 2.0)
+            M = (new_M_min**(-7.0 / 3.0) - np.random.uniform(0, 1, 1) *
+                 (new_M_min**(-7.0 / 3.0) - new_M_max**(-7.0 / 3.0)))**(-3.0 /
+                                                                        7.0)
+            eta = (eta_min**(-2.0) - np.random.uniform(0, 1, 1) *
+                   (eta_min**(-2.0) - 16.0))**(-1.0 / 2.0)
             m12 = np.zeros(2)
             m12[0] = 0.5 * M + M * np.sqrt(0.25 - eta)
             m12[1] = M - m12[0]
-            flag = bool(
-                (np.sum(m12) < new_M_max)
-                and (np.all(m12 > new_m_min))
-                and (m12[0] >= m12[1])
-            )
-        mc = np.sum(m12) * eta ** (3.0 / 5.0)
+            flag = bool((np.sum(m12) < new_M_max) and (np.all(m12 > new_m_min))
+                        and (m12[0] >= m12[1]))
+        mc = np.sum(m12) * eta**(3.0 / 5.0)
         return m12, mc, eta
     else:
         print(f"{time.asctime()}: ERROR, unknown mass distribution. Exiting.")
@@ -366,20 +366,18 @@ def get_fmin(M, eta, dt, verbose):
         :param f:
 
         """
-        v = ((G_SI / C_SI**3) * M_SI * np.pi * f) ** (1.0 / 3.0)
-        temp = (
-            v ** (-8.0)
-            + ((743.0 / 252.0) + 11.0 * eta / 3.0) * v ** (-6.0)
-            - (32 * np.pi / 5.0) * v ** (-5.0)
-            + ((3058673.0 / 508032.0) + 5429 * eta / 504.0 + (617.0 / 72.0) * eta**2)
-            * v ** (-4.0)
-        )
+        v = ((G_SI / C_SI**3) * M_SI * np.pi * f)**(1.0 / 3.0)
+        temp = (v**(-8.0) + ((743.0 / 252.0) + 11.0 * eta / 3.0) * v**(-6.0) -
+                (32 * np.pi / 5.0) * v**(-5.0) +
+                ((3058673.0 / 508032.0) + 5429 * eta / 504.0 +
+                 (617.0 / 72.0) * eta**2) * v**(-4.0))
         return (5.0 / (256.0 * eta)) * (G_SI / C_SI**3) * M_SI * temp - dt
 
     # solve for the frequency between limits
     fmin = brentq(dtchirp, 1.0, 2000.0, xtol=1e-6)
     if verbose:
-        print("{}: signal enters segment at {} Hz".format(time.asctime(), fmin))
+        print("{}: signal enters segment at {} Hz".format(
+            time.asctime(), fmin))
 
     return fmin
 
@@ -410,7 +408,9 @@ def gen_par(fs, T_obs, mdist="astro", beta=[0.75, 0.95], verbose=True):
     # generate iota
     iota = np.arccos(-1.0 + 2.0 * np.random.rand())
     if verbose:
-        print(f"{time.asctime()}: selected bbh cos(inclination) = {np.cos(iota)}")
+        print(
+            f"{time.asctime()}: selected bbh cos(inclination) = {np.cos(iota)}"
+        )
 
     # generate polarisation angle
     psi = 2.0 * np.pi * np.random.rand()
@@ -436,7 +436,8 @@ def gen_par(fs, T_obs, mdist="astro", beta=[0.75, 0.95], verbose=True):
     else:
         idx = int(np.random.randint(low_idx, high_idx, 1)[0])
     if verbose:
-        print(f"{time.asctime()}: selected bbh peak amplitude time = {idx / fs}")
+        print(
+            f"{time.asctime()}: selected bbh peak amplitude time = {idx / fs}")
 
     # the start index of the central region
     sidx = int(0.5 * fs * T_obs * (safe - 1.0) / safe)
@@ -464,9 +465,14 @@ def gen_par(fs, T_obs, mdist="astro", beta=[0.75, 0.95], verbose=True):
     )
 
 
-def gen_bbh(
-    fs, T_obs, psds, snr=1.0, dets=["H1"], beta=[0.75, 0.95], par=None, verbose=True
-):
+def gen_bbh(fs,
+            T_obs,
+            psds,
+            snr=1.0,
+            dets=["H1"],
+            beta=[0.75, 0.95],
+            par=None,
+            verbose=True):
     """generates a BBH timedomain signal
 
     :param fs:
@@ -529,9 +535,8 @@ def gen_bbh(
     # the window has dropped to 50% at the Tobs boundaries
     win = np.zeros(N)
     tempwin = tukey(int((16.0 / 15.0) * N / safe), alpha=1.0 / 8.0)
-    win[int((N - tempwin.size) / 2) : int((N - tempwin.size) / 2) + tempwin.size] = (
-        tempwin
-    )
+    win[int((N - tempwin.size) / 2):int((N - tempwin.size) / 2) +
+        tempwin.size] = (tempwin)
 
     # loop over detectors
     ndet = len(psds)
@@ -543,18 +548,17 @@ def gen_bbh(
     for det, psd in zip(dets, psds):
 
         # make signal - apply antenna and shifts
-        ht_shift, hp_shift, hc_shift = make_bbh(
-            orig_hp, orig_hc, fs, par.ra, par.dec, par.psi, det, verbose
-        )
+        ht_shift, hp_shift, hc_shift = make_bbh(orig_hp, orig_hc, fs, par.ra,
+                                                par.dec, par.psi, det, verbose)
 
         # place signal into timeseries - including shift
-        ht_temp = ht_shift[int(ref_idx - par.idx) :]
-        hp_temp = hp_shift[int(ref_idx - par.idx) :]
-        hc_temp = hc_shift[int(ref_idx - par.idx) :]
+        ht_temp = ht_shift[int(ref_idx - par.idx):]
+        hp_temp = hp_shift[int(ref_idx - par.idx):]
+        hc_temp = hc_shift[int(ref_idx - par.idx):]
         if len(ht_temp) < N:
-            ts[j, : len(ht_temp)] = ht_temp
-            hp[j, : len(ht_temp)] = hp_temp
-            hc[j, : len(ht_temp)] = hc_temp
+            ts[j, :len(ht_temp)] = ht_temp
+            hp[j, :len(ht_temp)] = hp_temp
+            hc[j, :len(ht_temp)] = hc_temp
         else:
             ts[j, :] = ht_temp[:N]
             hp[j, :] = hp_temp[:N]
@@ -603,7 +607,13 @@ def make_bbh(hp, hc, fs, ra, dec, psi, det, verbose):
     tvec = np.arange(len(hp)) / float(fs)
 
     # compute antenna response and apply
-    resp = AntennaResponse(det, ra, dec, psi, scalar=True, vector=True, times=0.0)
+    resp = AntennaResponse(det,
+                           ra,
+                           dec,
+                           psi,
+                           scalar=True,
+                           vector=True,
+                           times=0.0)
     Fp = resp.plus
     Fc = resp.cross
     ht = hp * Fp + hc * Fc  # overwrite the timeseries vector to reuse it
@@ -612,7 +622,9 @@ def make_bbh(hp, hc, fs, ra, dec, psi, det, verbose):
     frDetector = lalsimulation.DetectorPrefixToLALDetector(det)
     tdelay = lal.TimeDelayFromEarthCenter(frDetector.location, ra, dec, 0.0)
     if verbose:
-        print(f"{time.asctime()}: computed {det} Earth centre time delay = {tdelay}")
+        print(
+            f"{time.asctime()}: computed {det} Earth centre time delay = {tdelay}"
+        )
 
     # interpolate to get time shifted signal
     ht_tck = interpolate.splrep(tvec, ht, s=0)
@@ -664,21 +676,19 @@ def sim_data(
     for x in xrange(npclass):
         if verbose:
             print(f"{time.asctime()}: making a noise only instance")
-        ts_new = np.array(
-            [gen_noise(fs, T_obs, psd.data.data) for psd in psds]
-        ).reshape(ndet, -1)
+        ts_new = np.array([
+            gen_noise(fs, T_obs, psd.data.data) for psd in psds
+        ]).reshape(ndet, -1)
         ts.append(
-            np.array(
-                [
-                    whiten_data(t, T_obs, fs, psd.data.data)
-                    for t, psd in zip(ts_new, psds)
-                ]
-            ).reshape(ndet, -1)
-        )
+            np.array([
+                whiten_data(t, T_obs, fs, psd.data.data)
+                for t, psd in zip(ts_new, psds)
+            ]).reshape(ndet, -1))
         par.append(None)
         yval.append(0)
         if verbose:
-            print(f"{time.asctime()}: completed {x + 1}/{npclass} noise samples")
+            print(
+                f"{time.asctime()}: completed {x + 1}/{npclass} noise samples")
 
     # for the signal class - loop over random masses
     cnt = npclass
@@ -686,23 +696,25 @@ def sim_data(
 
         # generate a single new timeseries and chirpmass
         par_new = gen_par(fs, T_obs, mdist=mdist, beta=beta, verbose=verbose)
-        ts_new, _, _ = gen_bbh(
-            fs, T_obs, psds, snr=snr, dets=dets, beta=beta, par=par_new, verbose=verbose
-        )
+        ts_new, _, _ = gen_bbh(fs,
+                               T_obs,
+                               psds,
+                               snr=snr,
+                               dets=dets,
+                               beta=beta,
+                               par=par_new,
+                               verbose=verbose)
 
         # loop over noise realisations
         for _ in xrange(Nnoise):
-            ts_noise = np.array(
-                [gen_noise(fs, T_obs, psd.data.data) for psd in psds]
-            ).reshape(ndet, -1)
+            ts_noise = np.array([
+                gen_noise(fs, T_obs, psd.data.data) for psd in psds
+            ]).reshape(ndet, -1)
             ts.append(
-                np.array(
-                    [
-                        whiten_data(t, T_obs, fs, psd.data.data)
-                        for t, psd in zip(ts_noise + ts_new, psds)
-                    ]
-                ).reshape(ndet, -1)
-            )
+                np.array([
+                    whiten_data(t, T_obs, fs, psd.data.data)
+                    for t, psd in zip(ts_noise + ts_new, psds)
+                ]).reshape(ndet, -1))
             par.append(par_new)
             yval.append(1)
             cnt += 1
