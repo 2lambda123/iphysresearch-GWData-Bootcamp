@@ -52,11 +52,11 @@ class DatasetGenerator(Dataset):
     def generate(self, Nblock, Nnoise=25, mdist="metric", beta=[0.75, 0.95]):
         """
 
-        :param Nblock: 
+        :param Nblock:
         :param Nnoise:  (Default value = 25)
         :param mdist:  (Default value = "metric")
         :param beta:  (Default value = [0.75)
-        :param 0.95]: 
+        :param 0.95]:
 
         """
         # 生成数据的函数
@@ -160,7 +160,7 @@ class MyNet(nn.Module):
     def forward(self, x):
         """
 
-        :param x: 
+        :param x:
 
         """
         # 前向传播函数
@@ -205,13 +205,13 @@ def save_model(
 ):
     """Save a model and optimizer to file.
 
-    :param epoch: 
-    :param model: 
-    :param optimizer: 
-    :param scheduler: 
-    :param checkpoint_dir: 
-    :param train_loss_history: 
-    :param filename: 
+    :param epoch:
+    :param model:
+    :param optimizer:
+    :param scheduler:
+    :param checkpoint_dir:
+    :param train_loss_history:
+    :param filename:
 
     """
     # 保存模型的函数
@@ -257,8 +257,8 @@ transpose = lambda x, *args, **kwargs: x.t(*args, **kwargs)
 def accuracy(y_hat, y):
     """Compute the number of correct predictions.
 
-    :param y_hat: 
-    :param y: 
+    :param y_hat:
+    :param y:
 
     """
     # 计算预测正确的数量
@@ -271,9 +271,9 @@ def accuracy(y_hat, y):
 def evaluate_accuracy_gpu(net, data_iter, loss_func, device=None):  # @save
     """使用GPU计算模型在数据集上的精度
 
-    :param net: 
-    :param data_iter: 
-    :param loss_func: 
+    :param net:
+    :param data_iter:
+    :param loss_func:
     :param device:  (Default value = None)
 
     """
@@ -315,17 +315,17 @@ def train(
 ):
     """训练函数
 
-    :param net: 
-    :param lr: 
-    :param nsample_perepoch: 
-    :param epoch: 
-    :param total_epochs: 
-    :param dataset_train: 
-    :param data_loader: 
-    :param test_iter: 
-    :param train_loss_history: 
-    :param checkpoint_dir: 
-    :param device: 
+    :param net:
+    :param lr:
+    :param nsample_perepoch:
+    :param epoch:
+    :param total_epochs:
+    :param dataset_train:
+    :param data_loader:
+    :param test_iter:
+    :param train_loss_history:
+    :param checkpoint_dir:
+    :param device:
     :param notebook:  (Default value = True)
 
     """
