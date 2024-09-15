@@ -21,6 +21,7 @@ from utils import *
 
 
 class DatasetGenerator(Dataset):
+    """ """
     def __init__(
         self,
         fs=8192,
@@ -48,6 +49,15 @@ class DatasetGenerator(Dataset):
         self.generate(nsample_perepoch, Nnoise, mdist, beta)  # pre-generate sampels
 
     def generate(self, Nblock, Nnoise=25, mdist="metric", beta=[0.75, 0.95]):
+        """
+
+        :param Nblock: 
+        :param Nnoise:  (Default value = 25)
+        :param mdist:  (Default value = "metric")
+        :param beta:  (Default value = [0.75)
+        :param 0.95]: 
+
+        """
         # 生成数据的函数
         # Nnoise: # the number of noise realisations per signal
         # Nblock: # the number of training samples per output file
@@ -88,6 +98,7 @@ class DatasetGenerator(Dataset):
 
 
 class MyNet(nn.Module):
+    """ """
     def __init__(self):
         # 初始化函数，设置网络的各种参数
         super(MyNet, self).__init__()
@@ -146,6 +157,11 @@ class MyNet(nn.Module):
         self.layers.append(nn.Linear(64, 2))
 
     def forward(self, x):
+        """
+
+        :param x: 
+
+        """
         # 前向传播函数
         for layer in self.layers:
             x = layer(x)
@@ -157,6 +173,11 @@ class MyNet(nn.Module):
 
 
 def load_model(checkpoint_dir=None):
+    """
+
+    :param checkpoint_dir:  (Default value = None)
+
+    """
     # 加载模型的函数
     net = MyNet()
 
@@ -181,7 +202,17 @@ def load_model(checkpoint_dir=None):
 def save_model(
     epoch, model, optimizer, scheduler, checkpoint_dir, train_loss_history, filename
 ):
-    """Save a model and optimizer to file."""
+    """Save a model and optimizer to file.
+
+    :param epoch: 
+    :param model: 
+    :param optimizer: 
+    :param scheduler: 
+    :param checkpoint_dir: 
+    :param train_loss_history: 
+    :param filename: 
+
+    """
     # 保存模型的函数
     p = Path(checkpoint_dir)
     p.mkdir(parents=True, exist_ok=True)
@@ -223,7 +254,12 @@ transpose = lambda x, *args, **kwargs: x.t(*args, **kwargs)
 
 
 def accuracy(y_hat, y):
-    """Compute the number of correct predictions."""
+    """Compute the number of correct predictions.
+
+    :param y_hat: 
+    :param y: 
+
+    """
     # 计算预测正确的数量
     if len(y_hat.shape) > 1 and y_hat.shape[1] > 1:
         y_hat = argmax(y_hat, dim=1)
@@ -232,7 +268,14 @@ def accuracy(y_hat, y):
 
 
 def evaluate_accuracy_gpu(net, data_iter, loss_func, device=None):  # @save
-    """使用GPU计算模型在数据集上的精度"""
+    """使用GPU计算模型在数据集上的精度
+
+    :param net: 
+    :param data_iter: 
+    :param loss_func: 
+    :param device:  (Default value = None)
+
+    """
     if isinstance(net, nn.Module):
         net.eval()  # 设置为评估模式
         if not device:
@@ -269,7 +312,22 @@ def train(
     device,
     notebook=True,
 ):
-    """训练函数"""
+    """训练函数
+
+    :param net: 
+    :param lr: 
+    :param nsample_perepoch: 
+    :param epoch: 
+    :param total_epochs: 
+    :param dataset_train: 
+    :param data_loader: 
+    :param test_iter: 
+    :param train_loss_history: 
+    :param checkpoint_dir: 
+    :param device: 
+    :param notebook:  (Default value = True)
+
+    """
     # 设置优化器参数
     loss_func = nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.Adam(net.parameters(), lr=lr)  # 定义优化器

@@ -22,6 +22,7 @@ safe = 2  # define the safe multiplication scale for the desired time length
 
 
 class bbhparams:
+    """ """
     def __init__(
         self, mc, M, eta, m1, m2, ra, dec, iota, phi, psi, idx, fmin, snr, SNR
     ):
@@ -42,8 +43,11 @@ class bbhparams:
 
 
 def tukey(M, alpha=0.5):
-    """
-    Tukey window code copied from scipy
+    """Tukey window code copied from scipy
+
+    :param M: 
+    :param alpha:  (Default value = 0.5)
+
     """
     n = np.arange(0, M)
     width = int(np.floor(alpha * (M - 1) / 2.0))
@@ -123,9 +127,13 @@ def parser():
 
 
 def convert_beta(beta, fs, T_obs):
-    """
-    Converts beta values (fractions defining a desired period of time in
+    """Converts beta values (fractions defining a desired period of time in
     central output window) into indices for the full safe time window
+
+    :param beta: 
+    :param fs: 
+    :param T_obs: 
+
     """
     # pick new random max amplitude sample location - within beta fractions
     # and slide waveform to that location
@@ -139,8 +147,12 @@ def convert_beta(beta, fs, T_obs):
 
 
 def gen_noise(fs, T_obs, psd):
-    """
-    Generates noise from a psd
+    """Generates noise from a psd
+
+    :param fs: 
+    :param T_obs: 
+    :param psd: 
+
     """
 
     N = T_obs * fs  # the total number of time samples
@@ -159,8 +171,13 @@ def gen_noise(fs, T_obs, psd):
 
 
 def gen_psd(fs, T_obs, op="AdvDesign", det="H1"):
-    """
-    generates noise for a variety of different detectors
+    """generates noise for a variety of different detectors
+
+    :param fs: 
+    :param T_obs: 
+    :param op:  (Default value = "AdvDesign")
+    :param det:  (Default value = "H1")
+
     """
     N = T_obs * fs  # the total number of time samples
     dt = 1 / fs  # the sampling time (sec)
@@ -195,8 +212,14 @@ def gen_psd(fs, T_obs, op="AdvDesign", det="H1"):
 
 
 def get_snr(data, T_obs, fs, psd, fmin):
-    """
-    computes the snr of a signal given a PSD starting from a particular frequency index
+    """computes the snr of a signal given a PSD starting from a particular frequency index
+
+    :param data: 
+    :param T_obs: 
+    :param fs: 
+    :param psd: 
+    :param fmin: 
+
     """
 
     N = T_obs * fs
@@ -215,8 +238,14 @@ def get_snr(data, T_obs, fs, psd, fmin):
 
 
 def whiten_data(data, duration, sample_rate, psd, flag="td"):
-    """
-    Takes an input timeseries and whitens it according to a psd
+    """Takes an input timeseries and whitens it according to a psd
+
+    :param data: 
+    :param duration: 
+    :param sample_rate: 
+    :param psd: 
+    :param flag:  (Default value = "td")
+
     """
 
     if flag == "td":
@@ -239,8 +268,13 @@ def whiten_data(data, duration, sample_rate, psd, flag="td"):
 
 
 def gen_masses(m_min=5.0, M_max=100.0, mdist="astro", verbose=True):
-    """
-    function returns a pair of masses drawn from the appropriate distribution
+    """function returns a pair of masses drawn from the appropriate distribution
+
+    :param m_min:  (Default value = 5.0)
+    :param M_max:  (Default value = 100.0)
+    :param mdist:  (Default value = "astro")
+    :param verbose:  (Default value = True)
+
     """
 
     flag = False
@@ -312,14 +346,21 @@ def gen_masses(m_min=5.0, M_max=100.0, mdist="astro", verbose=True):
 
 
 def get_fmin(M, eta, dt, verbose):
-    """
-    Compute the instantaneous frequency given a time till merger
+    """Compute the instantaneous frequency given a time till merger
+
+    :param M: 
+    :param eta: 
+    :param dt: 
+    :param verbose: 
+
     """
     M_SI = M * MSUN_SI
 
     def dtchirp(f):
-        """
-        The chirp time to 2nd PN order
+        """The chirp time to 2nd PN order
+
+        :param f: 
+
         """
         v = ((G_SI / C_SI**3) * M_SI * np.pi * f) ** (1.0 / 3.0)
         temp = (
@@ -340,8 +381,15 @@ def get_fmin(M, eta, dt, verbose):
 
 
 def gen_par(fs, T_obs, mdist="astro", beta=[0.75, 0.95], verbose=True):
-    """
-    Generates a random set of parameters
+    """Generates a random set of parameters
+
+    :param fs: 
+    :param T_obs: 
+    :param mdist:  (Default value = "astro")
+    :param beta:  (Default value = [0.75)
+    :param 0.95]: 
+    :param verbose:  (Default value = True)
+
     """
     # define distribution params
     m_min = 5.0  # rest frame component masses
@@ -415,8 +463,18 @@ def gen_par(fs, T_obs, mdist="astro", beta=[0.75, 0.95], verbose=True):
 def gen_bbh(
     fs, T_obs, psds, snr=1.0, dets=["H1"], beta=[0.75, 0.95], par=None, verbose=True
 ):
-    """
-    generates a BBH timedomain signal
+    """generates a BBH timedomain signal
+
+    :param fs: 
+    :param T_obs: 
+    :param psds: 
+    :param snr:  (Default value = 1.0)
+    :param dets:  (Default value = ["H1"])
+    :param beta:  (Default value = [0.75)
+    :param 0.95]: 
+    :param par:  (Default value = None)
+    :param verbose:  (Default value = True)
+
     """
     N = T_obs * fs  # the total number of time samples
     dt = 1 / fs  # the sampling time (sec)
@@ -522,10 +580,19 @@ def gen_bbh(
 
 
 def make_bbh(hp, hc, fs, ra, dec, psi, det, verbose):
-    """
-    turns hplus and hcross into a detector output
+    """turns hplus and hcross into a detector output
     applies antenna response and
     and applies correct time delays to each detector
+
+    :param hp: 
+    :param hc: 
+    :param fs: 
+    :param ra: 
+    :param dec: 
+    :param psi: 
+    :param det: 
+    :param verbose: 
+
     """
 
     # make basic time vector
@@ -566,8 +633,19 @@ def sim_data(
     beta=[0.75, 0.95],
     verbose=True,
 ):
-    """
-    Simulates all of the test, validation and training data timeseries
+    """Simulates all of the test, validation and training data timeseries
+
+    :param fs: 
+    :param T_obs: 
+    :param snr:  (Default value = 1.0)
+    :param dets:  (Default value = ["H1"])
+    :param Nnoise:  (Default value = 25)
+    :param size:  (Default value = 1000)
+    :param mdist:  (Default value = "astro")
+    :param beta:  (Default value = [0.75)
+    :param 0.95]: 
+    :param verbose:  (Default value = True)
+
     """
 
     yval = []  # initialise the param output
@@ -644,9 +722,7 @@ def sim_data(
 
 
 def main():
-    """
-    The main code - generates the training, validation and test samples
-    """
+    """The main code - generates the training, validation and test samples"""
     snr_mn = 0.0
     snr_cnt = 0
 
