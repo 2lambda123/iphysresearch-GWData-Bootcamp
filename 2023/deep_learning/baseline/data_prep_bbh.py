@@ -8,11 +8,15 @@ import time
 import lal
 import lalsimulation
 import numpy as np
-from lal import C_SI, G_SI, MSUN_SI
+from lal import C_SI
+from lal import G_SI
+from lal import MSUN_SI
 from lal.antenna import AntennaResponse
-from scipy import integrate, interpolate
+from scipy import integrate
+from scipy import interpolate
 from scipy.optimize import brentq
-from scipy.signal import butter, filtfilt
+from scipy.signal import butter
+from scipy.signal import filtfilt
 from six.moves import cPickle
 
 if sys.version_info >= (3, 0):
