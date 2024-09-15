@@ -3,7 +3,7 @@ class Solution:
     def peakIndexInMountainArray(self, arr: List[int]) -> int:
         """
 
-        :param arr: List[int]: 
+        :param arr: List[int]:
 
         """
         return next(

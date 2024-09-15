@@ -3,7 +3,7 @@ class Solution:
     def checkOnesSegment(self, s: str) -> bool:
         """
 
-        :param s: str: 
+        :param s: str:
 
         """
         conut = sum(
