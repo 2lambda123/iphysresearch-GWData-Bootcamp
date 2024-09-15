@@ -6,14 +6,14 @@ import re
 
 
 def extract_choices(markdown_content):
-    pattern = re.compile(r'^## (\d+\. [A-Z])', re.MULTILINE)
+    pattern = re.compile(r"^## (\d+\. [A-Z])", re.MULTILINE)
     matches = pattern.findall(markdown_content)
     # here matches is a list
 
     choices = {}
     for match in matches:
         # match can be changed to any name, only it matches the following name
-        parts = match.split('. ')
+        parts = match.split(". ")
         if len(parts) == 2:
             number = int(parts[0])
             choice = parts[1]
@@ -23,17 +23,17 @@ def extract_choices(markdown_content):
 
 
 def extract_choices_from_file(inputfile_path, outputfile_path):
-    with open(inputfile_path, 'r', encoding='utf-8') as file:
+    with open(inputfile_path, "r", encoding="utf-8") as file:
         markdown_content = file.read()
 
     choices = extract_choices(markdown_content)
 
-    with open(outputfile_path, 'w', encoding='utf-8') as output_file:
+    with open(outputfile_path, "w", encoding="utf-8") as output_file:
         for number, choice in choices.items():
             output_file.write(f"{choice}\n")
 
 
 # example
-inputfile_path = './231203_pandas/choose.md'
-outputfile_path = './231203_pandas/pandas_submit.txt'
+inputfile_path = "./231203_pandas/choose.md"
+outputfile_path = "./231203_pandas/pandas_submit.txt"
 result = extract_choices_from_file(inputfile_path, outputfile_path)
